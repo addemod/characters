@@ -1,0 +1,20 @@
+name: Addemod/characters
+version: 1.0.0
+description: Adds characters to your server
+author: Addemod
+license: LGPL-3.0-or-later
+server:
+  main:
+    - Addemod.Characters.Server
+  include:
+    - Addemod.Characters.Shared
+client:
+  main:
+    - Addemod.Characters.Client
+  include:
+    - Addemod.Characters.Shared
+  files:
+  - Overlays/CharactersOverlay.html
+  - Overlays/Scripts/Character.js
+  - Overlays/Scripts/CharacterSelection.js
+  - Overlays/Scripts/Main.js

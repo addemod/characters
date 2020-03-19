@@ -1,0 +1,247 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+	<script src="https://vuejs.org/js/vue.min.js"></script>
+	<script src="https://unpkg.com/vuex@3.1.2/dist/vuex.min.js"></script>
+	<script src="https://unpkg.com/@glidejs/glide@3.4.1/dist/glide.min.js"></script>
+	<script defer src="https://use.fontawesome.com/releases/v5.3.1/js/all.js"></script>
+	<link rel="stylesheet" href="https://unpkg.com/@glidejs/glide@3.4.1/dist/css/glide.core.min.css" />
+	<link rel="stylesheet" href="https://unpkg.com/@glidejs/glide@3.4.1/dist/css/glide.theme.min.css" />
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.8.0/css/bulma.min.css" />
+
+	<style>
+		html, body {
+			background-color: #3B4347;
+		}
+
+		.card-footer-item-clickable {
+			cursor: pointer;
+			background-color: rgb(73, 79, 82);
+			color: white;
+		}
+
+		.card {
+			border-radius: 4px;
+			width: 22rem;
+			background-color: #181b1c;
+		}
+
+		.card-content {
+			color: white;
+			min-height: 30rem;
+		}
+
+		.card-footer,
+		.card-footer-item {
+			border-bottom-left-radius: 4px;
+			border-bottom-right-radius: 4px;
+		}
+
+		.card-header-title {
+			color: white;
+		}
+
+		.card-content.has-text-centered {
+			display: flex;
+			align-items: center;
+			justify-content: center;
+		}
+
+		.card.empty-character-slot .card-content {
+			cursor: pointer;
+		}
+
+		.glide__slide:not(.glide__slide--active) .card-footer {
+			display: none;
+		}
+
+		.glide__arrow {
+			color: black;
+			border-color: rgba(0, 0, 0, 0.5);
+		}
+
+			.glide__arrow:hover {
+				border-color: black;
+			}
+
+		.glide__track {
+			padding-left: 125px;
+		}
+
+		.character-select-glider {
+			margin-top: 120px;
+		}
+
+		.stroke {
+			text-shadow: -3px 0px 1px #000000, 0px -3px 1px #000000, 0px 3px 1px #000000, 3px 0px 1px #000000, 3px 0px 0px #000000, 4px 4px 4px #000000, 4px 4px 4px #000000;
+			-webkit-font-smoothing: antialiased;
+		}
+	</style>
+</head>
+<body>
+	<main></main>
+
+	<script type="text/x-template" id="character-card-template">
+		<div class="card character-card bg-white float-left m-3">
+			<header class="card-header">
+				<p class="card-header-title is-centered">
+					{{ character.FirstName }} {{ character.LastName }}
+				</p>
+			</header>
+
+
+			<div class="card-content has-text-centered">
+				<span class="icon has-text-success" style="font-size: 5em; cursor: pointer;" @click="$emit('selectCharacter', character.Id)">
+					<span class="fas fa-play"></span>
+				</span>
+			</div>
+
+			<div class="card-footer">
+				<button :data-target="'.delete-modal.id-' + character.Id" type="button" class="button is-fullwidth is-danger is-radiusless" data-toggle="modal"><i class="fas fa-trash fa-fw" /></button>
+			</div>
+
+			<div ref="deleteModal" :class="['modal', 'fade', 'delete-modal', 'id-' + character.Id]" data-backdrop="static" tabindex="-1" role="dialog" aria-hidden="true">
+				<div class="modal-background"></div>
+				<div class="modal-card">
+					<div class="modal-card-head">
+						<h3 class="modal-card-title	">Delete Character</h3>
+						<button type="button" class="delete" data-dismiss="modal" data-target=".delete-modal" aria-label="close"></button>
+					</div>
+
+					<div class="modal-card-body">
+						<p>Are you sure you want to delete <b>{{ character.FirstName }} {{ character.LastName }}</b>? This cannot be undone.</p>
+					</div>
+
+					<div class="modal-card-foot">
+						<button type="submit" class="button is-danger" @click="deleteCharacter">Delete Character</button>
+						<button type="button" class="button" data-dismiss="modal" data-target=".delete-modal">Cancel</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</script>
+
+	<script type="text/x-template" id="character-selection-template">
+		<main>
+			<div class="row">
+				<nav class="level">
+					<div class="level-left">
+						<div class="level-left-item">
+							<h1 class="title has-text-white stroke">Characters</h1>
+						</div>
+					</div>
+					<div class="level-right">
+						<div class="level-right-item">
+							<button type="button" class="button is-large" data-toggle="modal" data-target=".disconnect-modal">Disconnect</button>
+						</div>
+					</div>
+				</nav>
+			</div>
+
+			<section class="container-fluid mt-4">
+				<div class="row">
+					<div class="character-select-glider">
+						<div class="glide__track" data-glide-el="track">
+							<ul class="glide__slides">
+								<li v-for="character in characters" :key="character.Id" class="glide__slide">
+									<character :character="character" @selectCharacter="selectCharacter" @deleteCharacter="deleteCharacter" />
+								</li>
+								<li class="glide__slide">
+									<div class="card empty-character-slot" data-toggle="modal" data-target=".new-modal">
+										<header class="card-header">
+											<p class="card-header-title is-centered">
+												Free character slot
+											</p>
+										</header>
+										<div class="card-content has-text-centered" style="color: #222627">
+											<span class="icon" style="font-size: 5em">
+												<span class="far fa-plus-square"></span>
+											</span>
+										</div>
+									</div>
+								</li>
+							</ul>
+						</div>
+						<div class="glide__arrows" data-glide-el="controls">
+							<button class="glide__arrow glide__arrow--left" data-glide-dir="<">prev</button>
+							<button class="glide__arrow glide__arrow--right" data-glide-dir=">">next</button>
+						</div>
+					</div>
+				</div>
+			</section>
+
+			<div ref="newModal" class="modal fade new-modal" id="newModal" data-backdrop="static" tabindex="-1" role="dialog" aria-hidden="true">
+				<div class="modal-background"></div>
+				<div class="modal-card">
+					<div class="modal-card-head">
+						<h3 class="modal-card-title">New Character</h3>
+
+						<button type="button" class="delete" data-dismiss="modal" data-target=".new-modal" aria-label="close"></button>
+					</div>
+
+					<div class="modal-card-body">
+						<form>
+							<div class="form-row">
+								<div class="form-group col-md-4">
+									<label for="firstname">Firstname</label>
+									<input id="firstname" v-model="newCharacter.firstname" class="form-control" type="text" name="firstname" placeholder="required" pattern="^[a-zA-Z- ]{2,}$" title="Full firstname, must be at least 2 characters" autocomplete="given-name" required />
+								</div>
+
+								<div class="form-group col-md-4">
+									<label for="lastname">Lastname</label>
+									<input id="lastname" v-model="newCharacter.lastname" class="form-control" type="text" name="lastname" placeholder="required" pattern="^[a-zA-Z- ]{2,}$" title="Full lastname, must be at least 2 characters" autocomplete="family-name" required />
+								</div>
+							</div>
+
+							<div class="form-group">
+								<div class="custom-control custom-radio custom-control-inline">
+									<input id="genderMale" v-model.number="newCharacter.gender" class="custom-control-input gender-radio" type="radio" name="gender" value="0" required />
+									<label class="custom-control-label" for="genderMale">Male</label>
+								</div>
+
+								<div class="custom-control custom-radio custom-control-inline">
+									<input id="genderFemale" v-model.number="newCharacter.gender" class="custom-control-input gender-radio" type="radio" name="gender" value="1" required />
+									<label class="custom-control-label" for="genderFemale">Female</label>
+								</div>
+							</div>
+
+							<div class="form-group">
+								<label for="birthdate">Birth date</label>
+								<input id="birthdate" v-model="newCharacter.birthdate" class="form-control" type="date" name="birthdate" min="1900-01-01" max="2000-01-01" required />
+							</div>
+						</form>
+					</div>
+
+					<div class="modal-card-foot">
+						<button type="button" class="button is-success" @click="createNewCharacter">Create Character</button>
+						<button type="button" class="button" data-dismiss="modal" data-target=".new-modal">Cancel</button>
+					</div>
+				</div>
+			</div>
+			<div ref="disconnectModal" class="modal fade disconnect-modal" data-backdrop="static" tabindex="-1" role="dialog" aria-hidden="true">
+				<div class="modal-background"></div>
+				<div class="modal-card">
+						<div class="modal-card-head">
+							<h3 class="modal-card-title">Disconnect</h3>
+						</div>
+
+						<div class="modal-card-body">
+							<p>Are you sure you want to disconnect from the server?</p>
+						</div>
+
+						<div class="modal-card-foot">
+							<button type="submit" class="button is-danger" @click="disconnect">Disconnect</button>
+							<button type="button" class="button" data-dismiss="modal" data-target=".disconnect-modal">Cancel</button>
+						</div>
+				</div>
+			</div>
+		</main>
+	</script>
+	<script src="Scripts/Character.js"></script>
+	<script src="Scripts/CharacterSelection.js"></script>
+	<script src="Scripts/Main.js"></script>
+</body>
+</html>
