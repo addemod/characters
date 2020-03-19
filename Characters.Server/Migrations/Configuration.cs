@@ -1,6 +1,6 @@
 using JetBrains.Annotations;
 using NFive.SDK.Server.Migrations;
-using Addemod.NFundamentalsCharacters.Server.Storage;
+using Addemod.Characters.Server.Storage;
 
 namespace Addemod.Characters.Server.Migrations
 {
