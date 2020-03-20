@@ -223,6 +223,9 @@ namespace Addemod.Characters.Client
 			// Set character as active character
 			this.currentCharacter = character;
 
+			// Start tick to check if the player has spawned
+			this.Ticks.On(HasSpawnedTicks);
+
 			// Set as currently playing
 			this.isCurrentlyPlaying = true;
 
@@ -238,6 +241,13 @@ namespace Addemod.Characters.Client
 			// Release focus hold
 			this.started = true;
 		}
+
+		private async void HasSpawnedTicks() {
+			if (API.IsPlayerSwitchInProgress()) await Delay(300);
+			this.Comms.Event(CharacterEvents.Spawned).ToClient().Emit(this.characterSession);
+			this.Ticks.Off(HasSpawnedTicks);
+		}
+
 		private async Task OnSaveCharacter() {
 			SaveCharacter();
 
