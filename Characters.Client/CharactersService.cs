@@ -109,6 +109,9 @@ namespace Addemod.Characters.Client
 		}
 
 		private async Task ShowCharacterSelectionScreen() {
+			// If the player had an active character session
+			if (this.characterSession != null)
+				this.Comms.Event(CharacterEvents.Deselected).ToClient().Emit(this.characterSession);
 			// Set as not playing
 			this.isCurrentlyPlaying = false;
 
