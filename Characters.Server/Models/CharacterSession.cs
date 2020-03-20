@@ -16,16 +16,17 @@ namespace Addemod.Characters.Server.Models {
 		public DateTime? DateDisconnected { get; set; }
 
 		[Required]
-		public Guid CharacterId { get; set; }
 
-		[ForeignKey("CharacterId")]
+		[ForeignKey("Character")]
+		public Guid CharacterId { get; set; }
 		public virtual Character Character { get; set; }
 
 		[Required]
-		public Guid SessionId { get; set; }
 
 		// Foreign key to NFive session
-		[ForeignKey("SessionId")]
+		[ForeignKey("Session")]
+		public Guid SessionId { get; set; }
+		[JsonIgnore]
 		public virtual Session Session { get; set; }
 
 		[JsonIgnore]

@@ -33,34 +33,34 @@ namespace Addemod.Characters.Server.Models {
 		public DateTime? LastPlayed { get; set; }
 
 		[Required]
+		[ForeignKey("Apparel")]
 		public Guid ApparelId { get; set; }
 
-		[ForeignKey("ApparelId")]
 		public virtual Apparel Apparel { get; set; }
 
 		[Required]
+		[ForeignKey("Appearance")]
 		public Guid AppearanceId { get; set; }
-
-		[ForeignKey("AppearanceId")]
 		public virtual Appearance Appearance { get; set; }
 
 		[Required]
-		public Guid FaceShapeId { get; set; }
 
-		[ForeignKey("FaceShapeId")]
+		[ForeignKey("FaceShape")]
+		public Guid FaceShapeId { get; set; }
 		public virtual FaceShape FaceShape { get; set; }
 
 
 		[Required]
-		public Guid HeritageId { get; set; }
 
-		[ForeignKey("HeritageId")]
+		[ForeignKey("Heritage")]
+		public Guid HeritageId { get; set; }
 		public virtual Heritage Heritage { get; set; }
 
 		[Required]
+		[ForeignKey("User")]
 		public Guid UserId { get; set; }
 
-		[ForeignKey("UserId")]
+		[JsonIgnore]
 		public virtual User User { get; set; }
 
 		[JsonIgnore]
