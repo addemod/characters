@@ -175,6 +175,8 @@ namespace Addemod.Characters.Client
 
 		private async void OnSelectCharacter(object sender, CharacterIdOverlayEventArgs e) {
 			this.characterSession = await this.Comms.Event(CharacterEvents.Select).ToServer().Request<CharacterSession>(e.CharacterId);
+			// Notify the client that we've selected a character
+			this.Comms.Event(CharacterEvents.Selected).ToClient().Emit(this.characterSession);
 			await PlaySelectedCharacter(e.Overlay, this.characterSession.Character);
 		}
 
@@ -223,9 +225,6 @@ namespace Addemod.Characters.Client
 			// Set character as active character
 			this.currentCharacter = character;
 
-			// Start tick to check if the player has spawned
-			this.Ticks.On(HasSpawnedTicks);
-
 			// Set as currently playing
 			this.isCurrentlyPlaying = true;
 
@@ -237,6 +236,7 @@ namespace Addemod.Characters.Client
 			this.Ticks.On(OnHotkey);
 			this.Ticks.On(OnSaveCharacter);
 			this.Ticks.On(OnSavePosition);
+			this.Ticks.On(HasSpawnedTicks);
 
 			// Release focus hold
 			this.started = true;
